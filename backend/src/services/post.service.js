@@ -18,17 +18,18 @@ export const createPostService = async (userId, file, description) => {
     image_url: imageUrl,
   });
 
-  const populatedPost = await Post.findByPk(post.id, {
-    include: [
-      {
-        model: User,
-        as: "author",
-        attributes: ["id", "name", "profileImage"],
-      },
-    ],
-  });
+//   const populatedPost = await Post.findByPk(post.id, {
+//     include: [
+//       {
+//         model: User,
+//         as: "author",
+//         attributes: ["id", "name", "profileImage"],
+//       },
+//     ],
+//   });
 
-  return populatedPost;
+//   return populatedPost;
+return post;
 };
 
 export const getMyPostsService = async (userId) => {
@@ -41,9 +42,9 @@ export const getMyPostsService = async (userId) => {
   return posts.map(post => {
     const postJSON = post.toJSON();
     const likesCount = postJSON.likes ? postJSON.likes.length : 0;
-    const isLiked = postJSON.likes ? postJSON.likes.some(like => like.user_id === userId) : false;
+    // const isLiked = postJSON.likes ? postJSON.likes.some(like => like.user_id === userId) : false;
     delete postJSON.likes; 
-    return { ...postJSON, likesCount, isLiked };
+    return { ...postJSON, likesCount };
   });
 };
 
@@ -58,16 +59,13 @@ export const deletePostService = async (userId, postId) => {
     throw new Error("You are not authorized to delete this post.");
   }
 
-  // 1. Temporarily store the image path
   const imagePath = post.image_url ? path.resolve(post.image_url) : null;
 
-  // 2. Manual fallback: Delete associated notifications first
   await Notification.destroy({ where: { post_id: postId } });
 
-  // 3. Delete the post from the database
   await post.destroy();
 
-  // 4. ONLY delete the physical file if the database deletion was successful
+  
   if (imagePath && fs.existsSync(imagePath)) {
     fs.unlinkSync(imagePath);
   }

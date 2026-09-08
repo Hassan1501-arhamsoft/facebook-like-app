@@ -10,11 +10,13 @@ export default function GlobalFeed() {
     const [expandedComments, setExpandedComments] = useState({});
     const socket = useSocket();
     const { user } = useAuth();
+    //*fetch posts from db.
     useEffect(() => {
         const fetchFeed = async () => {
             try {
                 const { data } = await getGlobalFeedApi();
                 setPosts(data);
+                console.log("Fetched global feed:", data);
                 // eslint-disable-next-line no-unused-vars
             } catch (err) {
                 setError("Failed to load the feed.");
@@ -24,6 +26,7 @@ export default function GlobalFeed() {
         };
         fetchFeed();
     }, []);
+    //* like update 
     useEffect(() => {
         if (!socket) return;
 
@@ -45,7 +48,7 @@ export default function GlobalFeed() {
         };
     }, [socket]);
 
-
+    //* post deletion update
     useEffect(() => {
         if (!socket) return;
 
@@ -59,7 +62,7 @@ export default function GlobalFeed() {
             socket.off("post_deleted", handlePostDeleted);
         };
     }, [socket]);
-
+    //* new post update
     useEffect(() => {
         if (!socket || !user) return;
 
@@ -76,14 +79,14 @@ export default function GlobalFeed() {
             socket.off("new_post", handleNewPost);
         };
     }, [socket, user]);
-
+    //* toggle comments section
     const toggleComments = (postId) => {
         setExpandedComments((prev) => ({
             ...prev,
             [postId]: !prev[postId]
         }));
     };
-
+    //* handle like toggle
     const handleLikeToggle = async (postId) => {
         // 1. Optimistically update the UI instantly
         setPosts((prevPosts) =>

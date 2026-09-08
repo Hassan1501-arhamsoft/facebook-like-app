@@ -9,12 +9,14 @@ export default function CommentSection({ postId }) {
   const [submitting, setSubmitting] = useState(false);
   const socket = useSocket(); // GET SOCKET INSTANCE
 
-  // Fetch initial comments from DB
+  //* Fetch initial comments from DB
   useEffect(() => {
     const fetchComments = async () => {
       try {
         const { data } = await getPostCommentsApi(postId);
         setComments(data);
+        console.log(data)
+        console.log(`Fetched comments for post ${postId}:`, data);
       } catch (error) {
         console.error("Failed to load comments", error);
       } finally {
@@ -24,16 +26,13 @@ export default function CommentSection({ postId }) {
     fetchComments();
   }, [postId]);
 
-  // Listen for live comments via Socket.IO
+  //* Listen for live comments via Socket.IO
   useEffect(() => {
     if (!socket) return;
 
     const handleNewComment = (comment) => {
-      // Only add it to the screen if the comment belongs to this specific post
-      // Note: Make sure the backend model uses post_id exactly as written below
       if (comment.post_id === postId) {
         setComments((prev) => {
-          // Prevent duplicates if the current user is the one who posted it
           if (prev.find((c) => c.id === comment.id)) return prev;
           return [...prev, comment];
         });
@@ -54,8 +53,7 @@ export default function CommentSection({ postId }) {
     try {
       setSubmitting(true);
       const { data } = await addCommentApi(postId, newComment);
-      
-      // Add instantly for the author (other users get it via socket)
+  
       setComments((prev) => {
         if (prev.find((c) => c.id === data.id)) return prev;
         return [...prev, data];

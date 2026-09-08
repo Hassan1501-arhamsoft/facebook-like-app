@@ -42,6 +42,8 @@ export const getMyPosts = async (req, res, next) => {
 // ... existing createPost and getMyPosts controllers ...
 
 export const deletePost = async (req, res, next) => {
+    console.log(req.user.id, req.params.id);
+    
   try {
     const postId = req.params.id;
     await deletePostService(req.user.id, postId);
