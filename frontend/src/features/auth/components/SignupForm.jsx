@@ -6,7 +6,6 @@ import useAuth from "../hooks/useAuth";
 function SignupForm() {
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");

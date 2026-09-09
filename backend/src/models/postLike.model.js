@@ -24,11 +24,11 @@ const PostLike = sequelize.define(
     tableName: "post_likes",
     timestamps: true,
     createdAt: "created_at",
-    updatedAt: false, // Only tracking when the like occurred
+    updatedAt: false, 
     indexes: [
       {
         unique: true,
-        fields: ["user_id", "post_id"], // Prevents duplicate likes
+        fields: ["user_id", "post_id"], 
       },
     ],
   }

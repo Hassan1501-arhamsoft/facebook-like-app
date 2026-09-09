@@ -15,7 +15,7 @@ export default function MyPosts() {
             try {
                 const { data } = await getMyPostsApi();
                 setPosts(data);
-                console.log
+               
                 // eslint-disable-next-line no-unused-vars
             } catch (err) {
                 setError("Failed to load your posts.");
