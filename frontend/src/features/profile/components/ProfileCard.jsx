@@ -40,7 +40,7 @@ export default function ProfileCard({ setView, currentView }) {
       {/* Profile Image Section */}
       <div className="relative z-10 flex flex-col items-center mt-12 px-6">
         <div className="relative mb-3 group">
-          <div className="w-28 h-28 rounded-full p-1 bg-white border-4 border-white shadow-md group-hover:border-blue-50 transition-colors">
+          <div className="w-58 h-58 rounded-full p-1 bg-white border-4 border-white shadow-md group-hover:border-blue-50 transition-colors">
             <img
               src={user?.profileImage ? `http://localhost:5000/${user.profileImage}` : '/default-avatar.png'}
               alt="Profile"
@@ -50,7 +50,7 @@ export default function ProfileCard({ setView, currentView }) {
           <button
             onClick={() => fileInputRef.current.click()}
             disabled={isUploading}
-            className="absolute bottom-1 right-1 bg-gray-900 text-white p-2 rounded-full hover:bg-blue-600 transition-colors ring-4 ring-white disabled:opacity-50 shadow-md"
+            className="absolute bottom-2 right-7 bg-gray-900 text-white p-2 rounded-full hover:bg-blue-600 transition-colors ring-4 ring-white disabled:opacity-50 shadow-md"
             title="Upload new picture"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
