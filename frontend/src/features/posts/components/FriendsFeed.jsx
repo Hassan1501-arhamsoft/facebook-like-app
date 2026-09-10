@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { getGlobalFeedApi, toggleLikeApi } from "../services/post.service";
+import { getFriendsFeedApi, toggleLikeApi } from "../services/post.service";
 import CommentSection from "./CommentSection";
 import { useSocket } from "../../../context/SocketContext";
 import useAuth from "../../auth/hooks/useAuth";
@@ -26,7 +26,7 @@ export default function GlobalFeed() {
         const fetchFeed = async () => {
             try {
                 setLoading(true);
-                const response = await getGlobalFeedApi(1, 5); // Page 1
+                const response = await getFriendsFeedApi(1, 5); // Page 1
                 setPosts(response.data);
                 setHasMore(response.currentPage < response.totalPages);
             // eslint-disable-next-line no-unused-vars
@@ -45,7 +45,7 @@ export default function GlobalFeed() {
         try {
             setLoadingMore(true);
             const nextPage = page + 1;
-            const response = await getGlobalFeedApi(nextPage, 5);
+            const response = await getFriendsFeedApi(nextPage, 5);
             setPosts((prev) => [...prev, ...response.data]);
             setPage(nextPage);
             setHasMore(response.currentPage < response.totalPages);
@@ -145,10 +145,10 @@ export default function GlobalFeed() {
         }
     };
 
-   if (loading) return (
+    if (loading) return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 flex flex-col gap-6">
-                <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-100 pb-4">Global Feed</h2>
+                <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-100 pb-4">Friends Feed</h2>
                 {[1, 2].map(n => (
                     <div key={n} className="bg-white rounded-2xl h-72 border border-gray-100 shadow-sm animate-pulse"></div>
                 ))}
@@ -169,10 +169,10 @@ export default function GlobalFeed() {
                 
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                    <h2 className="text-2xl font-bold text-gray-900">Global Feed</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">Friends Feed</h2>
                     {posts.length > 0 && (
-                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100 shadow-sm">
-                            Explore
+                        <span className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-bold border border-purple-100 shadow-sm">
+                            Your Network
                         </span>
                     )}
                 </div>
@@ -180,13 +180,13 @@ export default function GlobalFeed() {
                 {posts.length === 0 ? (
                     /* Premium Empty State */
                     <div className="text-gray-500 p-12 flex flex-col items-center justify-center bg-white rounded-2xl border border-gray-100 shadow-sm min-h-[300px]">
-                        <div className="bg-blue-50 p-4 rounded-full mb-4 border border-blue-100 text-blue-500">
+                        <div className="bg-purple-50 p-4 rounded-full mb-4 border border-purple-100 text-purple-500">
                             <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
                         </div>
-                        <p className="text-lg font-bold text-gray-800">No new posts right now</p>
-                        <p className="text-sm mt-1 text-center max-w-sm">Check back later to see what people around the world are sharing.</p>
+                        <p className="text-lg font-bold text-gray-800">It's quiet here...</p>
+                        <p className="text-sm mt-1 text-center max-w-sm">None of your friends have posted yet. Connect with more people from the suggestions panel!</p>
                     </div>
                 ) : (
                     posts.map((post, index) => {
@@ -208,7 +208,7 @@ export default function GlobalFeed() {
                                             className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm"
                                         />
                                         <div>
-                                            <h3 className="font-bold text-gray-900 hover:text-blue-600 transition-colors cursor-pointer">
+                                            <h3 className="font-bold text-gray-900 hover:text-purple-600 transition-colors cursor-pointer">
                                                 {post.author?.name}
                                             </h3>
                                             <p className="text-xs text-gray-500 font-medium flex items-center gap-1 mt-0.5">
@@ -217,12 +217,11 @@ export default function GlobalFeed() {
                                             </p>
                                         </div>
                                     </div>
-
-                                    {/* Follow Button Placeholder */}
-                                    <button className="text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded-full transition-colors border border-blue-200 shadow-sm flex items-center gap-1">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-                                        Follow
-                                    </button>
+                                    
+                                    {/* Removed +Follow button since they are already friends */}
+                                    <div className="text-gray-400 hover:text-gray-600 cursor-pointer p-1">
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>
+                                    </div>
                                 </div>
 
                                 {/* Post Body */}

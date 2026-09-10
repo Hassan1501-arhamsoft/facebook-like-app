@@ -24,7 +24,7 @@ const Notification = sequelize.define(
       allowNull: false,
     },
     type: {
-      type: DataTypes.ENUM("like", "comment"),
+      type: DataTypes.ENUM("like", "comment", "follow_request", "follow_accepted"),
       allowNull: false,
     },
     is_read: {

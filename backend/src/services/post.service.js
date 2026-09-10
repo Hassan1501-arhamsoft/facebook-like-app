@@ -5,7 +5,7 @@ import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
 import PostLike from "../models/postLike.model.js";
 import Notification from "../models/notification.model.js";
-
+import Follow from "../models/follow.model.js"
 // Get Logged-in User Profile
 export const getUserProfile = async (userId) => {
   const user = await User.findByPk(userId, {
@@ -115,4 +115,44 @@ export const deletePostService = async (userId, postId) => {
   if (imagePath && fs.existsSync(imagePath)) {
     fs.unlinkSync(imagePath);
   }
+};
+
+export const getFriendsFeedService = async (userId, page = 1, limit = 5) => {
+  const offset = (page - 1) * limit;
+
+  const connections = await Follow.findAll({
+    where: {
+      status: "accepted",
+      [Op.or]: [{ follower_id: userId }, { following_id: userId }]
+    }
+  });
+
+  const friendIds = connections.map(conn => 
+    conn.follower_id === userId ? conn.following_id : conn.follower_id
+  );
+
+  const { count, rows: posts } = await Post.findAndCountAll({
+    where: { user_id: { [Op.in]: friendIds } },
+    include: [
+      
+      { model: User, as: "author", attributes: ["id", "name", "profileImage"] },
+      { model: PostLike, as: "likes", attributes: ["user_id"] }
+    ],
+    order: [["created_at", "DESC"]],
+    limit: parseInt(limit),
+    offset: parseInt(offset),
+    distinct: true,
+  });
+
+  const formattedPosts = posts.map(post => {
+    const postJSON = post.toJSON();
+    const likesArray = postJSON.likes || postJSON.PostLikes || []; 
+    const likesCount = likesArray.length;
+    const isLiked = likesArray.some(like => like.user_id === userId);
+    delete postJSON.likes; 
+    delete postJSON.PostLikes;
+    return { ...postJSON, likesCount, isLiked };
+  });
+
+  return { posts: formattedPosts, totalPages: Math.ceil(count / limit), currentPage: parseInt(page) };
 };

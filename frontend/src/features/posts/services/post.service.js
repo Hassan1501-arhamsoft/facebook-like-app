@@ -30,3 +30,8 @@ export const toggleLikeApi = async (postId) => {
   const response = await api.post(`/likes/${postId}/toggle`);
   return response.data;
 };
+
+export const getFriendsFeedApi = async (page = 1, limit = 5) => {
+  const response = await api.get(`/posts/friends-feed?page=${page}&limit=${limit}`);
+  return response.data;
+};
