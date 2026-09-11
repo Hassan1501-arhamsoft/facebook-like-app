@@ -4,6 +4,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "../features/auth/pages/LoginPage";
 import SignupPage from "../features/auth/pages/SignupPage";
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
+import NotFound from "../features/404page/pages/NotFound";
 
 
 
@@ -25,7 +26,7 @@ function AppRoutes() {
       </Route>
 
       {/* 404 */}
-      <Route path="*" element={<h1>404 | Page Not Found</h1>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

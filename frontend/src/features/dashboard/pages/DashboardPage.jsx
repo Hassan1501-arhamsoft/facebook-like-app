@@ -9,12 +9,13 @@ import PendingRequests from '../../follows/components/PendingRequests';
 import useAuth from '../../auth/hooks/useAuth';
 import MyNetwork from '../../follows/components/MyNetwork';
 import FriendsFeed from '../../posts/components/FriendsFeed';
+import ChatWindow from '../../messages/components/ChatWindow';
 
 export default function DashboardPage() {
   const [view, setView] = useState('feed');
   const [liveAlert, setLiveAlert] = useState(null);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
-  
+  const [activeChatFriend, setActiveChatFriend] = useState(null);
   const socket = useSocket();
   const { user } = useAuth();
 
@@ -22,13 +23,14 @@ export default function DashboardPage() {
     if (!socket || !user) return;
 
     const handleLiveAlert = (notification) => {
-      if (notification.userId !== user.id) return;
-      
+      const targetUserId = notification.userId || notification.user_id || notification.receiver_id;
+      if (targetUserId && targetUserId !== user.id) return;
+
       // eslint-disable-next-line no-useless-assignment
       let actionText = "";
       // eslint-disable-next-line no-useless-assignment
       let accentColor = "";
-      
+
       switch (notification.type) {
         case 'like':
           actionText = "liked your post";
@@ -90,11 +92,11 @@ export default function DashboardPage() {
         return <div className="animate-fade-in"><MyPosts /></div>;
       case 'notifications':
         return <div className="animate-fade-in"><Notifications /></div>;
-      case 'requests': 
+      case 'requests':
         return <div className="animate-fade-in"><PendingRequests /></div>;
-      case 'MyNetwork': 
-        return <div className="animate-fade-in"><MyNetwork/></div>;
-      case 'friends-feed': 
+      case 'MyNetwork':
+        return <div className="animate-fade-in"><MyNetwork  setActiveChatFriend={setActiveChatFriend} /></div>;
+      case 'friends-feed':
         return <div className="animate-fade-in"><FriendsFeed /></div>;
       case 'feed':
       default:
@@ -140,7 +142,12 @@ export default function DashboardPage() {
           <div className="lg:col-span-9 min-h-[80vh]">
             {renderRightColumn()}
           </div>
-          
+          {activeChatFriend && (
+            <ChatWindow
+              friend={activeChatFriend}
+              onClose={() => setActiveChatFriend(null)}
+            />
+          )}
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getFriendsApi, removeFriendApi } from "../services/follow.service"; // Updated import
 
-export default function MyNetwork() {
+export default function MyNetwork({ setActiveChatFriend }) {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,7 +17,7 @@ export default function MyNetwork() {
         setLoading(false);
       }
     };
-    
+
     fetchFriends();
   }, []);
 
@@ -25,7 +25,7 @@ export default function MyNetwork() {
   const handleUnfriend = async (friendId) => {
     // Instantly remove from UI
     setFriends((prev) => prev.filter((friend) => friend.id !== friendId));
-    
+
     try {
       await removeFriendApi(friendId);
     } catch (error) {
@@ -35,7 +35,7 @@ export default function MyNetwork() {
   };
 
   return (
-<div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
         <h2 className="text-2xl font-bold text-gray-900">My Friends</h2>
@@ -77,7 +77,7 @@ export default function MyNetwork() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {friends.map((friend) => (
             <div key={friend.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow relative overflow-hidden group">
-              
+
               {/* Mini Banner Cover */}
               <div className="h-16 w-full bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 absolute top-0 left-0 z-0"></div>
 
@@ -90,16 +90,22 @@ export default function MyNetwork() {
                 />
                 <h3 className="font-bold text-gray-900 truncate w-full text-center">{friend.name}</h3>
                 <p className="text-xs text-gray-500 mb-4 truncate w-full text-center">{friend.email}</p>
-                
+
                 {/* Actions */}
                 <div className="w-full flex gap-2">
-                  <button className="flex-1 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold py-2 rounded-xl transition-colors border border-gray-200 shadow-sm flex items-center justify-center gap-1.5">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                    Profile
+                  <button
+                    // eslint-disable-next-line no-undef
+                    onClick={() => setActiveChatFriend(friend)}
+                    className="flex-1 bg-white hover:bg-indigo-50 text-indigo-600 text-sm font-semibold py-2 rounded-xl transition-colors border border-indigo-200 hover:border-indigo-300 shadow-sm flex items-center justify-center gap-1.5"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    Message
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleUnfriend(friend.id)}
-                    className="flex-1 bg-white hover:bg-red-50 text-gray-600 hover:text-red-600 text-sm font-semibold py-2 rounded-xl transition-colors border border-gray-200 hover:border-red-200 shadow-sm flex items-center justify-center gap-1.5"
+                    className="flex-1 bg-white hover:bg-red-50 text-red-600 hover:text-red-600 text-sm font-semibold py-2 rounded-xl transition-colors border border-gray-200 hover:border-red-200 shadow-sm flex items-center justify-center gap-1.5"
                     title="Unfriend this user"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" /></svg>
