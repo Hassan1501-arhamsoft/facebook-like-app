@@ -20,7 +20,7 @@ export const connectDB = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ MySQL Database connected successfully.');
-    await sequelize.sync({ alter: true }); // This will update the schema to match the models
+    await sequelize.sync({alter: true}); // This will update the schema to match the models
     console.log('✅ Database schema synchronized.');
   } catch (error) {
     console.error('❌ Database connection failed:', error);

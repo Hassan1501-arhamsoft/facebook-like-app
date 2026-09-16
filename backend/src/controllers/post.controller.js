@@ -1,6 +1,6 @@
 import { createPostService, getMyPostsService, deletePostService, getGlobalFeedService } from "../services/post.service.js";
 import { getIO } from "../socket/socket.js";
-import { getFriendsFeedService } from "../services/post.service.js";
+import { getFriendsFeedService ,toggleSavePostService, getSavedPostsService } from "../services/post.service.js";
 
 export const createPost = async (req, res, next) => {
   try {
@@ -85,6 +85,39 @@ export const getFriendsFeed = async (req, res, next) => {
       data: result.posts, 
       currentPage: result.currentPage, 
       totalPages: result.totalPages 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const toggleSavePost = async (req, res, next) => {
+  try {
+    // Explicitly grab the ID from params (the "6" in /api/posts/6/save)
+    const postId = req.params.id; 
+    
+    // Explicitly grab the logged-in user's ID
+    const userId = req.user.id; 
+    
+    // Pass only the raw variables to the service
+    const result = await toggleSavePostService(userId, postId);
+    
+    res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSavedPosts = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 5 } = req.query;
+    const result = await getSavedPostsService(req.user.id, page, limit);
+    
+    res.status(200).json({
+      success: true,
+      data: result.posts,
+      currentPage: result.currentPage,
+      totalPages: result.totalPages
     });
   } catch (error) {
     next(error);

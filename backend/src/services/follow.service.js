@@ -111,7 +111,6 @@ export const getFriendsService = async (userId) => {
   const uniqueFriends = new Map();
 
   connections.forEach(conn => {
-    // Determine who the friend is (the person who is NOT you)
     const friend = conn.follower_id === userId ? conn.FollowingData : conn.FollowerData;
 
     // Add them to the Map using their ID as the unique key

@@ -18,7 +18,7 @@ const User = sequelize.define(
     email: {
       type: DataTypes.STRING(191),
       allowNull: false,
-      unique: true,
+      
       validate: {
         isEmail: true,
       },
@@ -35,6 +35,16 @@ const User = sequelize.define(
       defaultValue: null,
       field: "profile_image",
     },
+    role: {
+      type: DataTypes.ENUM("user", "admin"),
+      defaultValue: "user",
+      allowNull: false,
+    },
+    isBanned: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    }
   },
   {
     tableName: "users",

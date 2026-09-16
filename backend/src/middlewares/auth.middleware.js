@@ -34,3 +34,17 @@ export const protect = async (req, res, next) => {
     return errorResponse(res, "Invalid or expired token.", 401);
   }
 };
+
+export const isAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: "Not authenticated" });
+  }
+
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ 
+      success: false, 
+      message: "Access Denied: You do not have admin privileges." 
+    });
+  }
+  next();
+};

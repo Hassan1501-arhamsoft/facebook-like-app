@@ -10,6 +10,8 @@ import commentRoutes from './routes/comment.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import followRoutes from "./routes/follow.routes.js";
 import messageRoutes from "./routes/message.routes.js";
+import reportRoutes from "./routes/report.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
@@ -26,6 +28,8 @@ app.use('/api/notifications', notificationRoutes)
 app.use("/api/posts", postRoutes);
 app.use("/api/follows", followRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/admin", adminRoutes);
 app.use(errorMiddleware);
 
 export default app;

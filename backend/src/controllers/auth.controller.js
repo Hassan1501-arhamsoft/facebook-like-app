@@ -33,6 +33,13 @@ export const loginUser = async (req, res) => {
 
     const result = await loginUserService(email, password);
 
+    if (result.user && result.user.isBanned) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Your account has been banned. Please contact support." 
+      });
+    }
+
     return successResponse(
       res,
       "Login successful.",

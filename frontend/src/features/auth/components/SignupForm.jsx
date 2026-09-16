@@ -60,7 +60,11 @@ function SignupForm() {
         response.data.token
       );
 
-      navigate("/dashboard");
+      if (response.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error(error);
       setErrorMsg(error.response?.data?.message || "Registration failed. Please try again.");

@@ -5,6 +5,8 @@ import LoginPage from "../features/auth/pages/LoginPage";
 import SignupPage from "../features/auth/pages/SignupPage";
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import NotFound from "../features/404page/pages/NotFound";
+import AdminRoute from "./AdminRoute";
+import AdminDashboard from "../features/admin/pages/AdminDashboard";
 
 
 
@@ -14,6 +16,10 @@ function AppRoutes() {
       {/* Redirect root */}
       <Route path="/" element={<Navigate to="/login" replace />} />
 
+         {/* Admin Routes */}
+      <Route element={<AdminRoute />}>
+        <Route path="/admin" element={<AdminDashboard />} />
+      </Route>
       {/* Public Routes */}
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<LoginPage />} />
@@ -27,6 +33,8 @@ function AppRoutes() {
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
+
+     
     </Routes>
   );
 }

@@ -45,7 +45,11 @@ function LoginForm() {
         response.data.token
       );
 
-      navigate("/dashboard");
+      if (response.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error(error);
       setErrorMsg(error.response?.data?.message || "Invalid email or password. Please try again.");

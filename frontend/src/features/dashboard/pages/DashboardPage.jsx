@@ -10,6 +10,7 @@ import useAuth from '../../auth/hooks/useAuth';
 import MyNetwork from '../../follows/components/MyNetwork';
 import FriendsFeed from '../../posts/components/FriendsFeed';
 import ChatWindow from '../../messages/components/ChatWindow';
+import SavedPosts from '../../posts/components/SavedPosts';
 
 export default function DashboardPage() {
   const [view, setView] = useState('feed');
@@ -98,6 +99,8 @@ export default function DashboardPage() {
         return <div className="animate-fade-in"><MyNetwork  setActiveChatFriend={setActiveChatFriend} /></div>;
       case 'friends-feed':
         return <div className="animate-fade-in"><FriendsFeed /></div>;
+        case 'saved-posts':
+    return <div className="animate-fade-in"><SavedPosts /></div>;
       case 'feed':
       default:
         return <div className="animate-fade-in"><GlobalFeed /></div>;

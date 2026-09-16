@@ -6,34 +6,7 @@ import Post from "../models/post.model.js";
 import PostLike from "../models/postLike.model.js";
 import Notification from "../models/notification.model.js";
 import Follow from "../models/follow.model.js"
-// Get Logged-in User Profile
-// export const getUserProfile = async (userId) => {
-//   const user = await User.findByPk(userId, {
-//     attributes: { exclude: ['password'] }
-//   });
-//   if (!user) throw new Error("User not found.");
-//   return user;
-// };
-
-// // Upload / Update Profile Image
-// export const updateProfileImage = async (userId, file) => {
-//   if (!file) throw new Error("Please upload an image.");
-  
-//   const user = await User.findByPk(userId);
-//   if (!user) throw new Error("User not found.");
-
-//   if (user.profileImage) {
-//     const oldImagePath = path.resolve(user.profileImage);
-//     if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
-//   }
-
-//   user.profileImage = file.path.replace(/\\/g, "/");
-//   await user.save();
-
-//   const userData = user.toJSON();
-//   delete userData.password;
-//   return userData;
-// };
+import SavedPost from "../models/savedPost.model.js";
 
 // Create Post
 export const createPostService = async (userId, file, description) => {
@@ -83,7 +56,8 @@ export const getGlobalFeedService = async (userId, page = 1, limit = 5) => {
     where: { user_id: { [Op.ne]: userId } },
     include: [
       { model: User, as: "author", attributes: ["id", "name", "profileImage"] },
-      { model: PostLike, as: "likes", attributes: ["user_id"] }
+      { model: PostLike, as: "likes", attributes: ["user_id"] },
+      { model: SavedPost, as: "SavedPosts", attributes: ["user_id"], where: { user_id: userId }, required: false }
     ],
     order: [["created_at", "DESC"]],
     limit: parseInt(limit),
@@ -95,8 +69,9 @@ export const getGlobalFeedService = async (userId, page = 1, limit = 5) => {
     const postJSON = post.toJSON();
     const likesCount = postJSON.likes ? postJSON.likes.length : 0;
     const isLiked = postJSON.likes ? postJSON.likes.some(like => like.user_id === userId) : false;
+    const isSaved = postJSON.SavedPosts ? postJSON.SavedPosts.length > 0 : false;
     delete postJSON.likes;
-    return { ...postJSON, likesCount, isLiked };
+    return { ...postJSON, likesCount, isLiked, isSaved };
   });
 
   return { posts: formattedPosts, totalPages: Math.ceil(count / limit), currentPage: parseInt(page) };
@@ -136,7 +111,8 @@ export const getFriendsFeedService = async (userId, page = 1, limit = 5) => {
     include: [
       
       { model: User, as: "author", attributes: ["id", "name", "profileImage"] },
-      { model: PostLike, as: "likes", attributes: ["user_id"] }
+      { model: PostLike, as: "likes", attributes: ["user_id"] },
+      { model: SavedPost, as: "SavedPosts", attributes: ["user_id"], where: { user_id: userId }, required: false }
     ],
     order: [["created_at", "DESC"]],
     limit: parseInt(limit),
@@ -149,9 +125,63 @@ export const getFriendsFeedService = async (userId, page = 1, limit = 5) => {
     const likesArray = postJSON.likes || postJSON.PostLikes || []; 
     const likesCount = likesArray.length;
     const isLiked = likesArray.some(like => like.user_id === userId);
+    const isSaved = postJSON.SavedPosts ? postJSON.SavedPosts.length > 0 : false;
     delete postJSON.likes; 
     delete postJSON.PostLikes;
-    return { ...postJSON, likesCount, isLiked };
+    return { ...postJSON, likesCount, isLiked, isSaved };
+  });
+
+  return { posts: formattedPosts, totalPages: Math.ceil(count / limit), currentPage: parseInt(page) };
+};
+
+
+// Toggle Save Post
+export const toggleSavePostService = async (userId, postId) => {
+  // Force clean integers to strip away any Sequelize object wrappers
+  const cleanUserId = parseInt(userId, 10);
+  const cleanPostId = parseInt(postId, 10);
+
+  const existingSave = await SavedPost.findOne({
+    where: { user_id: cleanUserId, post_id: cleanPostId },
+  });
+
+  if (existingSave) {
+    await existingSave.destroy();
+    return { saved: false };
+  } else {
+    // Pass the cleaned integers to the create function
+    await SavedPost.create({ user_id: cleanUserId, post_id: cleanPostId });
+    return { saved: true };
+  }
+};
+
+// Get Saved Posts (WITH PAGINATION)
+export const getSavedPostsService = async (userId, page = 1, limit = 5) => {
+  const offset = (page - 1) * limit;
+
+  const { count, rows: savedRecords } = await SavedPost.findAndCountAll({
+    where: { user_id: userId },
+    include: [
+      {
+        model: Post,
+        as: "post",
+        include: [
+          { model: User, as: "author", attributes: ["id", "name", "profileImage"] },
+          { model: PostLike, as: "likes", attributes: ["user_id"] }
+        ]
+      }
+    ],
+    order: [["createdAt", "DESC"]],
+    limit: parseInt(limit),
+    offset: parseInt(offset),
+  });
+
+  const formattedPosts = savedRecords.map(record => {
+    const postJSON = record.post.toJSON();
+    const likesCount = postJSON.likes ? postJSON.likes.length : 0;
+    const isLiked = postJSON.likes ? postJSON.likes.some(like => like.user_id === userId) : false;
+    delete postJSON.likes;
+    return { ...postJSON, likesCount, isLiked, isSaved: true };
   });
 
   return { posts: formattedPosts, totalPages: Math.ceil(count / limit), currentPage: parseInt(page) };

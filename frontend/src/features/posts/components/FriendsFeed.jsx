@@ -4,19 +4,19 @@ import CommentSection from "./CommentSection";
 import { useSocket } from "../../../context/SocketContext";
 import useAuth from "../../auth/hooks/useAuth";
 import UserSuggestions from '../../follows/components/UserSuggestions';
-
+import { toggleSavePostApi } from "../services/post.service";
 export default function GlobalFeed() {
     const [posts, setPosts] = useState([]);
-    
+
     // Pagination States
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
-    
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [expandedComments, setExpandedComments] = useState({});
-    
+
     const socket = useSocket();
     const { user } = useAuth();
     const observer = useRef();
@@ -29,7 +29,7 @@ export default function GlobalFeed() {
                 const response = await getFriendsFeedApi(1, 5); // Page 1
                 setPosts(response.data);
                 setHasMore(response.currentPage < response.totalPages);
-            // eslint-disable-next-line no-unused-vars
+                // eslint-disable-next-line no-unused-vars
             } catch (err) {
                 setError("Failed to load the feed.");
             } finally {
@@ -60,13 +60,13 @@ export default function GlobalFeed() {
     const lastPostElementRef = useCallback((node) => {
         if (loading || loadingMore) return;
         if (observer.current) observer.current.disconnect();
-        
+
         observer.current = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting && hasMore) {
                 loadMorePosts();
             }
         });
-        
+
         if (node) observer.current.observe(node);
     }, [loading, loadingMore, hasMore, loadMorePosts]);
 
@@ -144,7 +144,32 @@ export default function GlobalFeed() {
             console.error("Failed to toggle like", error);
         }
     };
-
+    // save post
+    const handleSaveToggle = async (postId) => {
+        // Optimistic UI Update
+        setPosts((prevPosts) =>
+            prevPosts.map((post) => {
+                if (post.id === postId) {
+                    return { ...post, isSaved: !post.isSaved };
+                }
+                return post;
+            })
+        );
+        try {
+            await toggleSavePostApi(postId);
+        } catch (error) {
+            console.error("Failed to toggle save", error);
+            // Revert on failure
+            setPosts((prevPosts) =>
+                prevPosts.map((post) => {
+                    if (post.id === postId) {
+                        return { ...post, isSaved: !post.isSaved };
+                    }
+                    return post;
+                })
+            );
+        }
+    };
     if (loading) return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 flex flex-col gap-6">
@@ -158,15 +183,15 @@ export default function GlobalFeed() {
             </div>
         </div>
     );
-    
+
     if (error) return <div className="text-red-500 bg-red-50 p-4 rounded-xl border border-red-100">{error}</div>;
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+
             {/* LEFT SIDE: The Feed (Spans 2 out of 3 columns) */}
             <div className="lg:col-span-2 flex flex-col gap-6">
-                
+
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-100 pb-4">
                     <h2 className="text-2xl font-bold text-gray-900">Friends Feed</h2>
@@ -176,7 +201,7 @@ export default function GlobalFeed() {
                         </span>
                     )}
                 </div>
-                
+
                 {posts.length === 0 ? (
                     /* Premium Empty State */
                     <div className="text-gray-500 p-12 flex flex-col items-center justify-center bg-white rounded-2xl border border-gray-100 shadow-sm min-h-[300px]">
@@ -192,11 +217,11 @@ export default function GlobalFeed() {
                     posts.map((post, index) => {
                         const isLast = posts.length === index + 1;
                         const postDate = new Date(post.created_at);
-                        
+
                         return (
-                            <div 
-                                ref={isLast ? lastPostElementRef : null} 
-                                key={post.id} 
+                            <div
+                                ref={isLast ? lastPostElementRef : null}
+                                key={post.id}
                                 className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col"
                             >
                                 {/* Post Header */}
@@ -217,7 +242,7 @@ export default function GlobalFeed() {
                                             </p>
                                         </div>
                                     </div>
-                                    
+
                                     {/* Removed +Follow button since they are already friends */}
                                     <div className="text-gray-400 hover:text-gray-600 cursor-pointer p-1">
                                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>
@@ -230,7 +255,7 @@ export default function GlobalFeed() {
                                         <p className="text-gray-800 text-[15px] leading-relaxed">{post.description}</p>
                                     </div>
                                 )}
-                                
+
                                 {/* Post Image */}
                                 {post.image_url && (
                                     <div className="w-full bg-gray-50 flex justify-center border-y border-gray-50">
@@ -244,35 +269,48 @@ export default function GlobalFeed() {
 
                                 {/* Post Footer / Actions */}
                                 <div className="px-5 py-3 flex items-center justify-between text-sm border-t border-gray-50">
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => handleLikeToggle(post.id)}
+                                            className={`font-semibold transition flex items-center gap-2 px-4 py-1.5 rounded-full border ${post.isLiked
+                                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                                    : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200 hover:text-blue-600'
+                                                }`}
+                                        >
+                                            <svg className="w-5 h-5" fill={post.isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                            </svg>
+                                            {post.likesCount} {post.likesCount === 1 ? 'Like' : 'Likes'}
+                                        </button>
+
+                                        <button
+                                            onClick={() => toggleComments(post.id)}
+                                            className={`font-semibold transition flex items-center gap-2 px-4 py-1.5 rounded-full border ${expandedComments[post.id]
+                                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                                    : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200 hover:text-blue-600'
+                                                }`}
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                            </svg>
+                                            {expandedComments[post.id] ? "Hide Comments" : "Comments"}
+                                        </button>
+                                    </div>
                                     <button
-                                        onClick={() => handleLikeToggle(post.id)}
-                                        className={`font-semibold transition flex items-center gap-2 px-4 py-1.5 rounded-full border ${
-                                            post.isLiked 
-                                                ? 'bg-blue-50 text-blue-700 border-blue-200' 
-                                                : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200 hover:text-blue-600'
-                                        }`}
+                                        onClick={() => handleSaveToggle(post.id)}
+                                        className={`font-semibold transition flex items-center gap-2 p-2 rounded-full border ${post.isSaved
+                                                ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
+                                                : 'bg-white text-gray-500 hover:bg-gray-50 border-transparent hover:border-gray-200 hover:text-yellow-500'
+                                            }`}
+                                        title={post.isSaved ? "Unsave Post" : "Save Post"}
                                     >
-                                        <svg className="w-5 h-5" fill={post.isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                        <svg className="w-5 h-5" fill={post.isSaved ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                                         </svg>
-                                        {post.likesCount} {post.likesCount === 1 ? 'Like' : 'Likes'}
                                     </button>
 
-                                    <button
-                                        onClick={() => toggleComments(post.id)}
-                                        className={`font-semibold transition flex items-center gap-2 px-4 py-1.5 rounded-full border ${
-                                            expandedComments[post.id] 
-                                                ? 'bg-blue-50 text-blue-700 border-blue-200' 
-                                                : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200 hover:text-blue-600'
-                                        }`}
-                                    >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                        </svg>
-                                        {expandedComments[post.id] ? "Hide Comments" : "Comments"}
-                                    </button>
                                 </div>
-                                
+
                                 {/* Comments Dropdown */}
                                 {expandedComments[post.id] && (
                                     <div className="border-t border-gray-100 bg-gray-50/30">
@@ -295,7 +333,7 @@ export default function GlobalFeed() {
             </div>
 
             {/* RIGHT SIDE: Suggestions */}
-           <div className="lg:col-span-1 order-first lg:order-last mb-6 lg:mb-0 lg:sticky top-8 h-fit">
+            <div className="lg:col-span-1 order-first lg:order-last mb-6 lg:mb-0 lg:sticky top-8 h-fit">
                 <UserSuggestions />
             </div>
         </div>

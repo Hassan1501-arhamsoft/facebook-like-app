@@ -10,6 +10,7 @@ const Message = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+
     
     content: {
       type: DataTypes.TEXT,
@@ -22,8 +23,8 @@ const Message = sequelize.define(
   }
 );
 
-User.hasMany(Message, { foreignKey: "sender_id", as: "SentMessages" });
-User.hasMany(Message, { foreignKey: "receiver_id", as: "ReceivedMessages" });
+User.hasMany(Message, { foreignKey: "sender_id", as: "SentMessages" , onDelete: "CASCADE"});
+User.hasMany(Message, { foreignKey: "receiver_id", as: "ReceivedMessages" , onDelete: "CASCADE"});
 
 // Define the foreign key constraints directly in the association
 Message.belongsTo(User, { 

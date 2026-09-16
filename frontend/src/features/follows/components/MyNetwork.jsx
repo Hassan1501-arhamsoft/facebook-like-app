@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { getFriendsApi, removeFriendApi } from "../services/follow.service"; // Updated import
+import { getFriendsApi, removeFriendApi } from "../services/follow.service"; 
 
 export default function MyNetwork({ setActiveChatFriend }) {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(""); // NEW: Search state
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -21,7 +22,6 @@ export default function MyNetwork({ setActiveChatFriend }) {
     fetchFriends();
   }, []);
 
-  // NEW: Handle unfriending
   const handleUnfriend = async (friendId) => {
     // Instantly remove from UI
     setFriends((prev) => prev.filter((friend) => friend.id !== friendId));
@@ -30,18 +30,59 @@ export default function MyNetwork({ setActiveChatFriend }) {
       await removeFriendApi(friendId);
     } catch (error) {
       console.error("Failed to unfriend", error);
-      // Optional: if it fails, you could fetch friends again to restore the UI state
     }
   };
 
+  // NEW: Filter friends based on the search query instantly
+  const filteredFriends = friends.filter((friend) =>
+    friend.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-        <h2 className="text-2xl font-bold text-gray-900">My Friends</h2>
-        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100 shadow-sm">
-          {friends.length} {friends.length === 1 ? 'Friend' : 'Friends'}
-        </span>
+      
+      {/* Header with Search Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-bold text-gray-900">My Friends</h2>
+          <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100 shadow-sm">
+            {friends.length} {friends.length === 1 ? 'Friend' : 'Friends'}
+          </span>
+        </div>
+
+        {/* Premium Search Bar */}
+        <div className="relative w-full sm:w-80 group">
+  <input
+    type="text"
+    placeholder="Search friends..."
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    className="w-full pl-11 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-[14px] text-gray-900 shadow-[0_2px_10px_rgba(0,0,0,0.02)] outline-none transition-all duration-300 placeholder:text-gray-400 hover:border-gray-300 hover:shadow-[0_4px_15px_rgba(0,0,0,0.04)] focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:shadow-md"
+  />
+  
+  {/* Search Icon (Changes color on focus) */}
+  <svg 
+    className="w-[18px] h-[18px] text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300 group-focus-within:text-indigo-500" 
+    fill="none" 
+    stroke="currentColor" 
+    viewBox="0 0 24 24"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+  
+  {/* Premium Clear Button with circular hover effect */}
+  {searchQuery && (
+    <button 
+      onClick={() => setSearchQuery("")}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 bg-transparent hover:bg-gray-100 p-1.5 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-200"
+      aria-label="Clear search"
+    >
+      <svg className="w-[14px] h-[14px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  )}
+</div>
       </div>
 
       {/* States */}
@@ -64,7 +105,7 @@ export default function MyNetwork({ setActiveChatFriend }) {
           ))}
         </div>
       ) : friends.length === 0 ? (
-        // Empty State
+        // Empty State (No friends at all)
         <div className="text-gray-500 p-12 flex flex-col items-center bg-white rounded-2xl border border-gray-100 shadow-sm">
           <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -72,10 +113,19 @@ export default function MyNetwork({ setActiveChatFriend }) {
           <p className="text-lg font-semibold text-gray-700">No friends yet</p>
           <p className="text-sm mt-1">Accept requests or send them from the suggestions panel!</p>
         </div>
+      ) : filteredFriends.length === 0 ? (
+        // Empty State (Search found no matches)
+        <div className="text-gray-500 p-12 flex flex-col items-center bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <p className="text-lg font-semibold text-gray-700">No matching friends found</p>
+          <p className="text-sm mt-1">Try searching for a different name.</p>
+        </div>
       ) : (
-        // Friend Cards Grid
+        // Friend Cards Grid (Mapped over filteredFriends)
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {friends.map((friend) => (
+          {filteredFriends.map((friend) => (
             <div key={friend.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow relative overflow-hidden group">
 
               {/* Mini Banner Cover */}
@@ -94,7 +144,6 @@ export default function MyNetwork({ setActiveChatFriend }) {
                 {/* Actions */}
                 <div className="w-full flex gap-2">
                   <button
-                    // eslint-disable-next-line no-undef
                     onClick={() => setActiveChatFriend(friend)}
                     className="flex-1 bg-white hover:bg-indigo-50 text-indigo-600 text-sm font-semibold py-2 rounded-xl transition-colors border border-indigo-200 hover:border-indigo-300 shadow-sm flex items-center justify-center gap-1.5"
                   >

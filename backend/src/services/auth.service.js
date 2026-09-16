@@ -59,6 +59,7 @@ export const loginUserService = async (email, password) => {
     throw new Error("Invalid email or password.");
   }
 
+  
   // Generate JWT
   const token = generateToken({
     userId: user.id,
@@ -72,6 +73,8 @@ export const loginUserService = async (email, password) => {
       name: user.name,
       email: user.email,
       profileImage: user.profileImage,
+      role: user.role,
+      isBanned: user.isBanned
     },
   };
 };
