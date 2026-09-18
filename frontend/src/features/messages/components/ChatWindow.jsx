@@ -8,7 +8,6 @@ export default function ChatWindow({ friend, onClose }) {
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   
-  // NEW: Block states
   const [isBlocked, setIsBlocked] = useState(false);
   const [blockedByMe, setBlockedByMe] = useState(false);
   const [isBlocking, setIsBlocking] = useState(false);

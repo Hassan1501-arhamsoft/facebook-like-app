@@ -47,7 +47,14 @@ export const respondToRequest = async (req, res, next) => {
     const { action } = req.body; // Expects 'accept' or 'reject' from the frontend
 
     const result = await respondToRequestService(req.user.id, requestId, action);
-
+    
+    if (result.status === "accepted") {
+      getIO().emit("new_notification", {
+        userId: parseInt(requestId), // Custom payload structure for frontend routing
+        actor: { name: req.user.name, profileImage: req.user.profileImage },
+        type: "follow_accepted"
+      });
+    }
     res.status(200).json({ success: true, message: `Follow request ${result.status}.` });
   } catch (error) {
     next(error);

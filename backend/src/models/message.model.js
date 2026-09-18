@@ -3,7 +3,7 @@ import { sequelize } from "../config/database.js";
 import User from "./user.model.js";
 
 const Message = sequelize.define(
-  "Message",
+  "message",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -19,6 +19,7 @@ const Message = sequelize.define(
     
   },
   {
+    
     timestamps: true,
   }
 );

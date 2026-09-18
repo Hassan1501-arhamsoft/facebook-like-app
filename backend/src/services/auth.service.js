@@ -1,22 +1,22 @@
 import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import generateToken from "../utils/generateToken.js";
+// NEW: Imported Block model and Op for database querying
+import Block from "../models/block.model.js";
+import { Op } from "sequelize";
 
 export const registerUserService = async (userData) => {
   const { name, email, password, profileImage } = userData;
 
-  // Check existing user
   const existingUser = await User.findOne({ where: { email } });
 
   if (existingUser) {
     throw new Error("Email already exists.");
   }
 
-  // Hash password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Create user
   const user = await User.create({
     name,
     email,
@@ -24,12 +24,11 @@ export const registerUserService = async (userData) => {
     profileImage,
   });
 
-  // Generate JWT
   const token = generateToken({
     userId:  user.id,
+    excludedIds: [] // NEW: Default to empty array for new users
   });
 
-  // Return response data
   return {
     token,
     user: {
@@ -42,14 +41,12 @@ export const registerUserService = async (userData) => {
 };
 
 export const loginUserService = async (email, password) => {
-  // Find user
   const user = await User.findOne({ where: { email } });
 
   if (!user) {
     throw new Error("Invalid email or password.");
   }
 
-  // Compare password
   const isPasswordMatched = await bcrypt.compare(
     password,
     user.password
@@ -59,13 +56,24 @@ export const loginUserService = async (email, password) => {
     throw new Error("Invalid email or password.");
   }
 
-  
-  // Generate JWT
-  const token = generateToken({
-    userId: user.id,
+  // NEW: Fetch all block relationships for this user
+  const blocks = await Block.findAll({
+    where: {
+      [Op.or]: [{ blocker_id: user.id }, { blocked_id: user.id }]
+    }
   });
 
-  // Return response data
+  
+  const excludedIds = blocks.map(block => 
+    block.blocker_id === user.id ? block.blocked_id : block.blocker_id
+  );
+  
+
+  const token = generateToken({
+    userId: user.id,
+    excludedIds: excludedIds 
+  });
+
   return {
     token,
     user: {

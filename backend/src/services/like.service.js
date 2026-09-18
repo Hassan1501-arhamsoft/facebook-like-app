@@ -1,9 +1,16 @@
 import PostLike from "../models/postLike.model.js";
 import Post from "../models/post.model.js";
 
-export const toggleLikeService = async (userId, postId) => {
+// CHANGED: Added excludedIds parameter
+export const toggleLikeService = async (userId, postId, excludedIds = []) => {
   const post = await Post.findByPk(postId);
+  
   if (!post) throw new Error("Post not found.");
+
+  // NEW: Reject interaction if the post author is blocked
+  if (excludedIds.includes(post.user_id)) {
+    throw new Error("You cannot interact with this user's content.");
+  }
 
   const existingLike = await PostLike.findOne({
     where: { user_id: userId, post_id: postId },
@@ -13,12 +20,12 @@ export const toggleLikeService = async (userId, postId) => {
 
   if (existingLike) {
     await existingLike.destroy();
-  } else {
+  } 
+  else {
     await PostLike.create({ user_id: userId, post_id: postId });
     liked = true;
   }
 
-  // Count the exact number of likes after the toggle
   const likesCount = await PostLike.count({
     where: { post_id: postId },
   });

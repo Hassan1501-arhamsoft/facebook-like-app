@@ -15,8 +15,6 @@ export default function CommentSection({ postId }) {
       try {
         const { data } = await getPostCommentsApi(postId);
         setComments(data);
-        console.log(data)
-        console.log(`Fetched comments for post ${postId}:`, data);
       } catch (error) {
         console.error("Failed to load comments", error);
       } finally {

@@ -145,7 +145,6 @@ export default function GlobalFeed() {
     };
     // Handle save toggle
     const handleSaveToggle = async (postId) => {
-        // Optimistic UI Update
         setPosts((prevPosts) =>
             prevPosts.map((post) => {
                 if (post.id === postId) {
@@ -158,15 +157,7 @@ export default function GlobalFeed() {
             await toggleSavePostApi(postId);
         } catch (error) {
             console.error("Failed to toggle save", error);
-            // Revert on failure
-            setPosts((prevPosts) =>
-                prevPosts.map((post) => {
-                    if (post.id === postId) {
-                        return { ...post, isSaved: !post.isSaved };
-                    }
-                    return post;
-                })
-            );
+          
         }
     };
 

@@ -23,7 +23,7 @@ export default function MyPosts() {
         const fetchPosts = async () => {
             try {
                 setLoading(true);
-                const response = await getMyPostsApi(1, 5); // Page 1
+                const response = await getMyPostsApi(1, 5); 
                 setPosts(response.data);
                 setHasMore(response.currentPage < response.totalPages);
             // eslint-disable-next-line no-unused-vars
@@ -124,7 +124,6 @@ export default function MyPosts() {
             </div>
 
             {posts.length === 0 ? (
-                /* Premium Empty State */
                 <div className="text-gray-500 p-12 flex flex-col items-center justify-center bg-white rounded-2xl border border-gray-100 shadow-sm min-h-[300px]">
                     <div className="bg-gray-50 p-4 rounded-full mb-4 border border-gray-100">
                         <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

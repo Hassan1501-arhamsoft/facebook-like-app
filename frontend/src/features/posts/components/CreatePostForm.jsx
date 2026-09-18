@@ -36,8 +36,6 @@ export default function CreatePostForm({ onPostCreated }) {
         try {
             setIsSubmitting(true);
             await createPostApi(formData);
-
-            // Reset form
             setDescription("");
             clearImage();
             alert("Post created successfully!");
@@ -65,7 +63,7 @@ export default function CreatePostForm({ onPostCreated }) {
             <textarea
                 className="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white text-gray-800 placeholder-gray-400 transition-all text-[15px]"
                 placeholder="What do you want to share with your network?"
-                rows="3"
+                rows="5"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
             />

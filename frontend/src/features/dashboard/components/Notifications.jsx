@@ -88,7 +88,7 @@ export default function Notifications() {
       {loading ? (
         /* Skeleton Loaders */
         <div className="flex flex-col gap-3">
-          {[1, 2, 3, 4, 5].map(n => (
+          {[1, 2, 3, 4, 5,6,7,8,9,10].map(n => (
             <div key={n} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 animate-pulse">
               <div className="w-12 h-12 rounded-full bg-gray-200"></div>
               <div className="flex-1">

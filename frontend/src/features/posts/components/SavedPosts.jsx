@@ -181,7 +181,7 @@ export default function SavedPosts() {
             </div>
             
             {posts.filter(p => p.isSaved).length === 0 ? (
-                /* Premium Empty State */
+            
                 <div className="text-gray-500 p-12 flex flex-col items-center justify-center bg-white rounded-2xl border border-gray-100 shadow-sm min-h-[400px]">
                     <div className="bg-yellow-50 p-5 rounded-full mb-5 border border-yellow-100 text-yellow-500 shadow-sm">
                         <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">

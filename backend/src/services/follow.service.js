@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import User from "../models/user.model.js";
 import Follow from "../models/follow.model.js";
-
+//* Get Suggestions for Users to Follow
 export const getSuggestionsService = async (userId, limit = 5) => {
 
   const existingConnections = await Follow.findAll({
@@ -19,7 +19,6 @@ export const getSuggestionsService = async (userId, limit = 5) => {
   
   excludedUserIds.push(userId); 
 
-  
   return await User.findAll({
     where: { id: { [Op.notIn]: excludedUserIds } },
     attributes: ["id", "name", "profileImage", "email"],
@@ -27,6 +26,7 @@ export const getSuggestionsService = async (userId, limit = 5) => {
   });
 };
 
+//* Send Follow Request
 export const sendFollowRequestService = async (followerId, followingId) => {
   if (followerId === parseInt(followingId)) throw new Error("You cannot follow yourself.");
 
@@ -47,7 +47,7 @@ export const sendFollowRequestService = async (followerId, followingId) => {
 
   return { action: "requested", follow };
 };
-
+//* Get Pending Follow Requests */
 export const getPendingRequestsService = async (userId) => {
   return await Follow.findAll({
     where: { following_id: userId, status: "pending" },
@@ -60,7 +60,7 @@ export const getPendingRequestsService = async (userId) => {
     ],
   });
 };
-
+//* Respond to Follow Request
 export const respondToRequestService = async (userId, requestId, action) => {
   const followRequest = await Follow.findOne({
     where: { id: requestId, following_id: userId, status: "pending" },
@@ -80,10 +80,7 @@ export const respondToRequestService = async (userId, requestId, action) => {
   }
 };
 
-
-//network 
-
-
+//* Get Friends List
 export const getFriendsService = async (userId) => {
   const connections = await Follow.findAll({
     where: {
@@ -107,22 +104,19 @@ export const getFriendsService = async (userId) => {
     ],
   });
 
-  // Use a Map to automatically remove duplicate users
   const uniqueFriends = new Map();
 
   connections.forEach(conn => {
     const friend = conn.follower_id === userId ? conn.FollowingData : conn.FollowerData;
 
-    // Add them to the Map using their ID as the unique key
     if (friend && !uniqueFriends.has(friend.id)) {
       uniqueFriends.set(friend.id, friend);
     }
   });
 
-  // Convert the Map back into a standard array for the frontend
   return Array.from(uniqueFriends.values());
 };
-
+//* Remove Friend
 export const removeFriendService = async (userId, friendId) => {
   const connection = await Follow.findOne({
     where: {

@@ -4,7 +4,7 @@ import useAuth from "../../auth/hooks/useAuth";
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState("reports"); // 'reports' or 'users'
+  const [activeTab, setActiveTab] = useState("reports");
   
   const [users, setUsers] = useState([]);
   const [reports, setReports] = useState([]);

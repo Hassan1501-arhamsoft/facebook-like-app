@@ -27,16 +27,10 @@ export const createPost = async (req, res, next) => {
 
 export const getMyPosts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 5 } = req.query; // Added for Pagination
-    const result = await getMyPostsService(req.user.id, page, limit);
-
-    res.status(200).json({
-      success: true,
-      data: result.posts,
-      currentPage: result.currentPage,
-      totalPages: result.totalPages
-    });
-  } catch (error) {
+    const { page = 1, limit = 5 } = req.query; 
+    const result = await getMyPostsService(req.user.id, page, limit, req.user.excludedIds); 
+    res.status(200).json({ success: true, data: result.posts, currentPage: result.currentPage, totalPages: result.totalPages });
+  } catch (error) { 
     next(error);
   }
 };
@@ -61,8 +55,9 @@ export const deletePost = async (req, res, next) => {
 
 export const getGlobalFeed = async (req, res, next) => {
   try {
-    const { page = 1, limit = 5 } = req.query; // Added for Pagination
-    const result = await getGlobalFeedService(req.user.id, page, limit);
+    const { page = 1, limit = 5 } = req.query; 
+    
+    const result = await getGlobalFeedService(req.user.id, page, limit, req.user.excludedIds);
 
     res.status(200).json({
       success: true,
@@ -79,7 +74,8 @@ export const getGlobalFeed = async (req, res, next) => {
 export const getFriendsFeed = async (req, res, next) => {
   try {
     const { page = 1, limit = 5 } = req.query;
-    const result = await getFriendsFeedService(req.user.id, page, limit);
+    // CHANGED: Pass req.user.excludedIds to the service
+    const result = await getFriendsFeedService(req.user.id, page, limit, req.user.excludedIds);
     res.status(200).json({ 
       success: true, 
       data: result.posts, 
@@ -111,14 +107,9 @@ export const toggleSavePost = async (req, res, next) => {
 export const getSavedPosts = async (req, res, next) => {
   try {
     const { page = 1, limit = 5 } = req.query;
-    const result = await getSavedPostsService(req.user.id, page, limit);
-    
-    res.status(200).json({
-      success: true,
-      data: result.posts,
-      currentPage: result.currentPage,
-      totalPages: result.totalPages
-    });
+    // CHANGED: Pass excludedIds
+    const result = await getSavedPostsService(req.user.id, page, limit, req.user.excludedIds);
+    res.status(200).json({ success: true, data: result.posts, currentPage: result.currentPage, totalPages: result.totalPages });
   } catch (error) {
     next(error);
   }
