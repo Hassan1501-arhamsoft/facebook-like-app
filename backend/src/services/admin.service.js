@@ -1,9 +1,6 @@
 import User from "../models/user.model.js";
 import Report from "../models/report.model.js";
 
-// ==========================================
-// USER MANAGEMENT SERVICES
-// ==========================================
 //* get users
 export const getAllUsersService = async () => {
   return await User.findAll({
@@ -13,8 +10,8 @@ export const getAllUsersService = async () => {
 };
 //* toggle ban
 export const toggleBanUserService = async (adminId, targetUserId) => {
-  // Prevent admin from banning themselves
-  if (parseInt(targetUserId, 10) === parseInt(adminId, 10)) {
+ 
+  if (parseInt(targetUserId) === parseInt(adminId)) {
     throw new Error("You cannot ban yourself.");
   }
 

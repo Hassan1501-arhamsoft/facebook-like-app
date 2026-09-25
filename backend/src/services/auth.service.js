@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import generateToken from "../utils/generateToken.js";
-// NEW: Imported Block model and Op for database querying
 import Block from "../models/block.model.js";
 import { Op } from "sequelize";
 
@@ -26,7 +25,7 @@ export const registerUserService = async (userData) => {
 
   const token = generateToken({
     userId:  user.id,
-    excludedIds: [] // NEW: Default to empty array for new users
+    excludedIds: [] 
   });
 
   return {
@@ -56,7 +55,6 @@ export const loginUserService = async (email, password) => {
     throw new Error("Invalid email or password.");
   }
 
-  // NEW: Fetch all block relationships for this user
   const blocks = await Block.findAll({
     where: {
       [Op.or]: [{ blocker_id: user.id }, { blocked_id: user.id }]

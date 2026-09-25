@@ -73,7 +73,7 @@ export default function ChatWindow({ friend, onClose }) {
 
     socket.on("receive_message", handleReceiveMessage);
     
-    // Listen for block errors from backend
+    
     socket.on("message_error", (data) => {
        alert(data.error); 
     });

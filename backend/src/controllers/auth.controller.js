@@ -15,6 +15,28 @@ export const registerUser = async (req, res) => {
       profileImage,
     });
 
+    if (!password ) {
+    return res.status(400).json({
+        message: "Password is required"
+    });
+    }
+
+    if (!name) {
+    return res.status(400).json({
+        message: "Password is required"
+    });
+    }
+
+    if (!email) {
+    return res.status(400).json({
+        message: "Password is required"
+    });
+    }
+
+
+
+
+
     return successResponse(
       res,
       "User registered successfully.",

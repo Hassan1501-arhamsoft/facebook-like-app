@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import User from "../models/user.model.js";
 import Follow from "../models/follow.model.js";
+
 //* Get Suggestions for Users to Follow
 export const getSuggestionsService = async (userId, limit = 5) => {
 
@@ -71,7 +72,7 @@ export const respondToRequestService = async (userId, requestId, action) => {
   if (action === "accept") {
     followRequest.status = "accepted";
     await followRequest.save();
-    return { status: "accepted" };
+    return { status: "accepted" ,followerId: followRequest.follower_id};
   } else if (action === "reject") {
     await followRequest.destroy();
     return { status: "rejected" };

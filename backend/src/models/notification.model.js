@@ -11,11 +11,11 @@ const Notification = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    recipient_id: { // The post owner
+    recipient_id: {               //* The post owner
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
     },
-    actor_id: { // The person who liked/commented
+    actor_id: {                   //* The person who liked/commented
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
     },

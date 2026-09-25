@@ -8,7 +8,7 @@ const Follow = sequelize.define("Follow", {
     autoIncrement: true,
     primaryKey: true,
   },
-  follower_id: {
+  follower_id: {        
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
@@ -40,17 +40,17 @@ const Follow = sequelize.define("Follow", {
   ]
 });
 
-// Associations
+
 User.belongsToMany(User, {
   through: Follow,
-  as: "Followers", // People following the user
+  as: "Followers",             
   foreignKey: "following_id",
   otherKey: "follower_id"
 });
 
 User.belongsToMany(User, {
   through: Follow,
-  as: "Following", // People the user follows
+  as: "Following",             
   foreignKey: "follower_id",
   otherKey: "following_id"
 });

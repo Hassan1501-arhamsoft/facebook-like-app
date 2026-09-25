@@ -11,7 +11,7 @@ const Report = sequelize.define(
       autoIncrement: true,
     },
     reporter_id: {
-      type: DataTypes.BIGINT.UNSIGNED, // Matches your User ID type
+      type: DataTypes.BIGINT.UNSIGNED, 
       allowNull: false,
     },
     reported_id: {
@@ -39,8 +39,8 @@ const Report = sequelize.define(
 
 // Define Relationships
 User.hasMany(Report, { foreignKey: "reporter_id", as: "SubmittedReports", onDelete: "CASCADE" });
-User.hasMany(Report, { foreignKey: "reported_id", as: "ReceivedReports", onDelete: "CASCADE" });
 Report.belongsTo(User, { foreignKey: "reporter_id", as: "Reporter" });
+User.hasMany(Report, { foreignKey: "reported_id", as: "ReceivedReports", onDelete: "CASCADE" });
 Report.belongsTo(User, { foreignKey: "reported_id", as: "Reported" });
 
 export default Report;

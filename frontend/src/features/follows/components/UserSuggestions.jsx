@@ -33,9 +33,9 @@ export default function UserSuggestions() {
     } catch (error) {
       console.error("Failed to send request", error);
       // Revert on failure
-      setSuggestions(prev => prev.map(user => 
-        user.id === userId ? { ...user, requestSent: !user.requestSent } : user
-      ));
+      // setSuggestions(prev => prev.map(user => 
+      //   user.id === userId ? { ...user, requestSent: !user.requestSent } : user
+      // ));
     }
   };
 

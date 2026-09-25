@@ -60,7 +60,7 @@ function SignupForm() {
         response.data.token
       );
 
-      if (response.user.role === "admin") {
+      if (response.data.user.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/dashboard");
@@ -169,7 +169,7 @@ function SignupForm() {
 
         {/* Profile Picture Upload Box */}
         <div className="flex flex-col text-left">
-          <label className="text-[13px] font-bold text-gray-700 mb-2">Profile Picture <span className="text-gray-400 font-normal">(Optional)</span></label>
+          <label htmlFor="profile-upload" className="text-[13px] font-bold text-gray-700 mb-2">Profile Picture <span className="text-gray-400 font-normal">(Optional)</span></label>
           <label htmlFor="profile-upload" className="w-full h-[90px] border-2 border-dashed border-gray-200 bg-gray-50/50 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-indigo-50/50 hover:border-indigo-400 group">
             <input
               id="profile-upload"

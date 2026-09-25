@@ -56,6 +56,21 @@ export const getMyPostsService = async (userId, page = 1, limit = 5, excludedIds
   return { posts: formattedPosts, totalPages: Math.ceil(count / limit), currentPage: parseInt(page) };
 };
 
+//* Delete Post
+export const deletePostService = async (userId, postId) => {
+  const post = await Post.findByPk(postId);
+  if (!post) throw new Error("Post not found.");
+  if (post.user_id !== userId) throw new Error("You are not authorized to delete this post.");
+
+  const imagePath = post.image_url ? path.resolve(post.image_url) : null;
+  await Notification.destroy({ where: { post_id: postId } }); 
+  await post.destroy();
+
+  if (imagePath && fs.existsSync(imagePath)) {
+    fs.unlinkSync(imagePath);
+  }
+};
+
 //* Get Global Feed (WITH PAGINATION)
 export const getGlobalFeedService = async (userId, page = 1, limit = 5, excludedIds = []) => {
   const offset = (page - 1) * limit;
@@ -97,20 +112,7 @@ export const getGlobalFeedService = async (userId, page = 1, limit = 5, excluded
   return { posts: formattedPosts, totalPages: Math.ceil(count / limit), currentPage: parseInt(page) };
 };
 
-//* Delete Post
-export const deletePostService = async (userId, postId) => {
-  const post = await Post.findByPk(postId);
-  if (!post) throw new Error("Post not found.");
-  if (post.user_id !== userId) throw new Error("You are not authorized to delete this post.");
 
-  const imagePath = post.image_url ? path.resolve(post.image_url) : null;
-  await Notification.destroy({ where: { post_id: postId } }); 
-  await post.destroy();
-
-  if (imagePath && fs.existsSync(imagePath)) {
-    fs.unlinkSync(imagePath);
-  }
-};
 
 //* Get Friends Feed (WITH PAGINATION) 
 export const getFriendsFeedService = async (userId, page = 1, limit = 5, excludedIds = []) => {
@@ -165,8 +167,8 @@ export const getFriendsFeedService = async (userId, page = 1, limit = 5, exclude
 //* Toggle Save Post
 export const toggleSavePostService = async (userId, postId) => {
 
-  const cleanUserId = parseInt(userId, 10);
-  const cleanPostId = parseInt(postId, 10);
+  const cleanUserId = parseInt(userId);
+  const cleanPostId = parseInt(postId);
 
   const existingSave = await SavedPost.findOne({
     where: { user_id: cleanUserId, post_id: cleanPostId },
@@ -183,7 +185,6 @@ export const toggleSavePostService = async (userId, postId) => {
 };
 
 //* Get Saved Posts (WITH PAGINATION)
-// CHANGED: Added excludedIds parameter
 export const getSavedPostsService = async (userId, page = 1, limit = 5, excludedIds = []) => {
   const offset = (page - 1) * limit;
 

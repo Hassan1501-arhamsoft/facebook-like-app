@@ -12,12 +12,10 @@ export const SocketProvider = ({ children }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    // Only connect if the user is logged in
     if (user && user.id) {
       const newSocket = io("http://localhost:5000");
 
       newSocket.on("connect", () => {
-        // Register the user's ID with their socket connection
         newSocket.emit("register", user.id);
       });
 

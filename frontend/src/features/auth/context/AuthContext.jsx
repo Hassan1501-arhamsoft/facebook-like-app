@@ -12,7 +12,6 @@ function AuthProvider({ children }) {
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("token");
 
-    // Ensure storedUser is not the string "undefined"
     if (storedUser && storedUser !== "undefined" && storedToken) {
       try {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -20,7 +19,6 @@ function AuthProvider({ children }) {
         setToken(storedToken);
       } catch (error) {
         console.error("Failed to parse user from local storage:", error);
-        // Clear corrupted data
         localStorage.removeItem("user");
         localStorage.removeItem("token");
       }

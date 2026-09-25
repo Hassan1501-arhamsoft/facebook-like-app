@@ -1,6 +1,6 @@
 import api from "../../../api/axios";
 
-// Register User
+//* Register User
 export const registerUser = async (formData) => {
   const response = await api.post("/auth/register", formData, {
     headers: {
@@ -11,7 +11,7 @@ export const registerUser = async (formData) => {
   return response.data;
 };
 
-// Login User
+//* Login User
 export const loginUser = async (credentials) => {
   const response = await api.post("/auth/login", credentials);
 

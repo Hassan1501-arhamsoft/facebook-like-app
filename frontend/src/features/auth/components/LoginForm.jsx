@@ -19,7 +19,7 @@ function LoginForm() {
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
-    setErrorMsg(""); // Clear error when user types
+    setErrorMsg(""); 
 
     if (type === "checkbox") {
       setRememberMe(checked);
@@ -45,7 +45,7 @@ function LoginForm() {
         response.data.token
       );
 
-      if (response.user.role === "admin") {
+      if (response.data.user.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/dashboard");

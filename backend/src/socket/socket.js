@@ -3,7 +3,7 @@ import Message from "../models/message.model.js";
 import Block from "../models/block.model.js";
 import { Op } from "sequelize"; 
 let io;
-// Map to track which socket ID belongs to which user ID
+
 export const onlineUsers = new Map(); 
 
 export const initSocket = (server) => {
@@ -17,18 +17,16 @@ export const initSocket = (server) => {
   io.on("connection", (socket) => {
     console.log(`🔌 New client connected: ${socket.id}`);
 
-    // When a user logs in, they send their ID to register their socket
     socket.on("register", (userId) => {
       onlineUsers.set(userId, socket.id);
       console.log(`User ${userId} registered with socket ${socket.id}`);
     });
 
-
  socket.on("send_message", async (data) => {
+  
   try {
     const { sender_id, receiver_id, content } = data;
 
-    // 1. CHECK FOR BLOCK BEFORE SENDING
     const isBlocked = await Block.findOne({
       where: {
         [Op.or]: [
@@ -39,19 +37,17 @@ export const initSocket = (server) => {
     });
 
     if (isBlocked) {
-      // Notify the sender that the message failed
       socket.emit("message_error", { error: "Cannot send message. User is blocked." });
       return; 
     }
 
-    // 2. Save to Database
     const newMessage = await Message.create({
       sender_id,
       receiver_id,
       content,
     });
 
-    // 3. Broadcast
+    
     io.emit("receive_message", newMessage);
 
   } catch (error) {
@@ -73,6 +69,15 @@ export const initSocket = (server) => {
 };
 
 export const getIO = () => {
-  if (!io) throw new Error("Socket.io is not initialized!");
+  if (!io) {
+    return {
+      emit: () => {},
+      to: () => ({
+        emit: () => {},
+      }),
+    };
+  }
+
   return io;
 };
+  

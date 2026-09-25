@@ -34,7 +34,6 @@ const PostLike = sequelize.define(
   }
 );
 
-// Define Relationships
 Post.hasMany(PostLike, { foreignKey: "post_id", as: "likes", onDelete: "CASCADE" });
 PostLike.belongsTo(Post, { foreignKey: "post_id" });
 

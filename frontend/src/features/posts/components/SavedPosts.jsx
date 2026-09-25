@@ -88,7 +88,7 @@ export default function SavedPosts() {
         };
     }, [socket]);
 
-    // Socket: Post deletion update (removes it from saved if the original author deletes it)
+    
     useEffect(() => {
         if (!socket) return;
         const handlePostDeleted = (deletedPostId) => {
@@ -126,7 +126,7 @@ export default function SavedPosts() {
     };
 
     const handleSaveToggle = async (postId) => {
-        // Optimistically remove or visually unsave the post
+    
         setPosts((prevPosts) =>
             prevPosts.map((post) => {
                 if (post.id === postId) {
@@ -139,15 +139,7 @@ export default function SavedPosts() {
             await toggleSavePostApi(postId);
         } catch (error) {
             console.error("Failed to toggle save", error);
-            // Revert on failure
-            setPosts((prevPosts) =>
-                prevPosts.map((post) => {
-                    if (post.id === postId) {
-                        return { ...post, isSaved: !post.isSaved };
-                    }
-                    return post;
-                })
-            );
+          
         }
     };
 

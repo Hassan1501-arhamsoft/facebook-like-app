@@ -1,6 +1,7 @@
 import { getSuggestionsService, sendFollowRequestService, getPendingRequestsService, respondToRequestService } from "../services/follow.service.js";
 import { getIO } from "../socket/socket.js";
 import { getFriendsService } from "../services/follow.service.js";
+import { removeFriendService } from "../services/follow.service.js"; 
 
 export const getSuggestions = async (req, res, next) => {
   try {
@@ -17,10 +18,9 @@ export const sendRequest = async (req, res, next) => {
     const { id: followingId } = req.params;
     const result = await sendFollowRequestService(req.user.id, followingId);
 
-    // Broadcast a live notification if it was a new request
     if (result.action === "requested") {
       getIO().emit("new_notification", {
-        userId: parseInt(followingId), // Custom payload structure for frontend routing
+        userId: parseInt(followingId), 
         actor: { name: req.user.name, profileImage: req.user.profileImage },
         type: "follow_request"
       });
@@ -44,13 +44,14 @@ export const getPendingRequests = async (req, res, next) => {
 export const respondToRequest = async (req, res, next) => {
   try {
     const { id: requestId } = req.params;
-    const { action } = req.body; // Expects 'accept' or 'reject' from the frontend
+    const { action } = req.body; 
+
 
     const result = await respondToRequestService(req.user.id, requestId, action);
     
     if (result.status === "accepted") {
       getIO().emit("new_notification", {
-        userId: parseInt(requestId), // Custom payload structure for frontend routing
+        userId: parseInt(result.followerId), 
         actor: { name: req.user.name, profileImage: req.user.profileImage },
         type: "follow_accepted"
       });
@@ -61,9 +62,6 @@ export const respondToRequest = async (req, res, next) => {
   }
 };
 
-// network
-
-
 export const getFriends = async (req, res, next) => {
   try {
     const friends = await getFriendsService(req.user.id);
@@ -73,7 +71,6 @@ export const getFriends = async (req, res, next) => {
   }
 };
 
-import { removeFriendService } from "../services/follow.service.js"; // update imports
 
 export const removeFriend = async (req, res, next) => {
   try {

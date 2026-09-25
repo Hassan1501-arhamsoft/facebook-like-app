@@ -133,15 +133,13 @@ export default function DashboardPage() {
       )}
 
       <div className="max-w-[1400px] mx-auto">
-        {/* CHANGED TO 3/9 PROPORTION FOR BETTER WIDE-SCREEN SPACING */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
-
-          {/* PROFILE CARD: Sidebar Navigation (3 columns) */}
+            {/* left */}
           <div className="lg:col-span-3 sticky top-8 h-fit z-10">
             <ProfileCard setView={setView} currentView={view} />
           </div>
 
-          {/* MAIN CONTENT AREA: Feeds & Pages (9 columns) */}
+          {/* Right */}
           <div className="lg:col-span-9 min-h-[80vh]">
             {renderRightColumn()}
           </div>

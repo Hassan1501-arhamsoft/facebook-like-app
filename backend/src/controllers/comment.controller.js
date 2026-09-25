@@ -8,8 +8,8 @@ export const addComment = async (req, res, next) => {
     const { postId } = req.params;
     const { text } = req.body;
     
-    // CHANGED: Pass req.user.excludedIds to the add comment service
     const comment = await addCommentService(req.user.id, postId, text, req.user.excludedIds);
+    
     getIO().emit("new_comment", comment);
 
     const post = await Post.findByPk(postId);

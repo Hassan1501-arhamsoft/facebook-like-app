@@ -11,9 +11,8 @@ const SavedPost = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    // EXPLICITLY DEFINE THESE FIELDS TO PREVENT THE [object Object] ERROR
     user_id: {
-      type: DataTypes.BIGINT.UNSIGNED, // Adjust to DataTypes.INTEGER if your User ID is standard int
+      type: DataTypes.BIGINT.UNSIGNED, 
       allowNull: false,
     },
     post_id: {
@@ -27,10 +26,10 @@ const SavedPost = sequelize.define(
   }
 );
 
-// Relationships
+
 User.hasMany(SavedPost, { foreignKey: "user_id", onDelete: "CASCADE" });
-Post.hasMany(SavedPost, { foreignKey: "post_id", onDelete: "CASCADE" });
 SavedPost.belongsTo(User, { foreignKey: "user_id", as: "user" });
+Post.hasMany(SavedPost, { foreignKey: "post_id", onDelete: "CASCADE" });
 SavedPost.belongsTo(Post, { foreignKey: "post_id", as: "post" });
 
 export default SavedPost;

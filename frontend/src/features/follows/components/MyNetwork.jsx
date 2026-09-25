@@ -4,7 +4,7 @@ import { getFriendsApi, removeFriendApi } from "../services/follow.service";
 export default function MyNetwork({ setActiveChatFriend }) {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(""); // NEW: Search state
+  const [searchQuery, setSearchQuery] = useState(""); 
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -23,7 +23,6 @@ export default function MyNetwork({ setActiveChatFriend }) {
   }, []);
 
   const handleUnfriend = async (friendId) => {
-    // Instantly remove from UI
     setFriends((prev) => prev.filter((friend) => friend.id !== friendId));
 
     try {
@@ -33,7 +32,7 @@ export default function MyNetwork({ setActiveChatFriend }) {
     }
   };
 
-  // NEW: Filter friends based on the search query instantly
+
   const filteredFriends = friends.filter((friend) =>
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
   );

@@ -14,3 +14,6 @@ conn.follower_id === userId
 means:
 
 If I am the follower, give me the person I'm following. Otherwise, give me the person who is following me.
+
+sudo ss -lptn | grep 3306
+sudo kill -9 8994

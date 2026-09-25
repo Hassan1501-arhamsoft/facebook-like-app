@@ -34,7 +34,6 @@ export const toggleBlockUser = async (req, res, next) => {
   }
 };
 
-// NEW: Check Block Status
 export const checkBlockStatus = async (req, res, next) => {
   try {
     const { friendId } = req.params;

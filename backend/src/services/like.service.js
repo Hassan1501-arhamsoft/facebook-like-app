@@ -1,13 +1,11 @@
 import PostLike from "../models/postLike.model.js";
 import Post from "../models/post.model.js";
 
-// CHANGED: Added excludedIds parameter
 export const toggleLikeService = async (userId, postId, excludedIds = []) => {
   const post = await Post.findByPk(postId);
   
   if (!post) throw new Error("Post not found.");
-
-  // NEW: Reject interaction if the post author is blocked
+  
   if (excludedIds.includes(post.user_id)) {
     throw new Error("You cannot interact with this user's content.");
   }

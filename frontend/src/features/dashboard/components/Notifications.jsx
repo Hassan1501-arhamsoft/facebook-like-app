@@ -22,7 +22,7 @@ export default function Notifications() {
     fetchNotifications();
   }, []);
 
-  // Listen for live targeted notifications
+  //* Listen for live targeted notifications
   useEffect(() => {
     if (!socket) return;
 
@@ -34,7 +34,6 @@ export default function Notifications() {
     return () => socket.off("new_notification", handleNewNotification);
   }, [socket]);
 
-  // Helper function to assign icons, colors, and text based on type
   const getNotificationDetails = (type) => {
     switch (type) {
       case 'like':

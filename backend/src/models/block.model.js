@@ -14,11 +14,11 @@ const Block = sequelize.define(
   { timestamps: true }
 );
 
-// Associations
-User.hasMany(Block, { foreignKey: "blocker_id", as: "Blocking", onDelete: "CASCADE" });
-User.hasMany(Block, { foreignKey: "blocked_id", as: "BlockedBy", onDelete: "CASCADE" });
 
+User.hasMany(Block, { foreignKey: "blocker_id", as: "Blocking", onDelete: "CASCADE" });
 Block.belongsTo(User, { foreignKey: "blocker_id", as: "Blocker" });
+
+User.hasMany(Block, { foreignKey: "blocked_id", as: "BlockedBy", onDelete: "CASCADE" });
 Block.belongsTo(User, { foreignKey: "blocked_id", as: "Blocked" });
 
 export default Block;
