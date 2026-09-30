@@ -3,12 +3,10 @@ import app from "../app.js";
 
 describe("Admin API", () => {
   let adminToken;
-  let normalUserToken;
   let adminUserId;
 
   // Login before tests
   beforeAll(async () => {
-    // Login as admin
     const adminLogin = await request(app)
       .post("/api/auth/login")
       .send({
@@ -45,7 +43,6 @@ describe("Admin API", () => {
 
   // TC-ADMIN-002
   test("should ban a user as admin", async () => {
-    // Use an existing normal user's ID
     const targetUserId = 2;
 
     const response = await request(app)
@@ -77,7 +74,7 @@ describe("Admin API", () => {
 
   // TC-ADMIN-004
   test("should update report status as admin", async () => {
-    // Use an existing report ID
+    
     const reportId = 1;
 
     const response = await request(app)
